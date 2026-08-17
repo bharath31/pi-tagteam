@@ -13,7 +13,7 @@
 
 # pi-tagteam 🤝
 
-> Resume stalled Claude Code and OpenAI Codex sessions in Pi without losing uncommitted git worktrees, subagent tasks, or context.
+> State-aware session handoff from Claude Code and OpenAI Codex to Pi. Recovers uncommitted git worktrees, in-flight subagents, and checklist state without context bloat.
 
 <p align="center">
   <img src="assets/preview.svg" alt="pi-tagteam preview" width="100%">
@@ -25,13 +25,14 @@ pi install npm:pi-tagteam
 
 ---
 
-## ⚡ Why this exists
+## ⚡ Why this exists: State Salvage vs Chat Replay
 
-When Claude Code or Codex hits an hourly rate limit mid-task, execution stops. The prompt history, tool results, and uncommitted diffs remain in on-disk session files.
+When a coding agent halts due to rate limits or context overflow, replaying old chat messages is only half the picture. The real working state lives in your filesystem:
 
-The main complication is subagent worktrees. Claude Code writes subagent changes to isolated paths under `.claude/worktrees/agent-<id>`. When a rate limit or crash halts the process before merging, those changes sit untracked on disk.
+- **Isolated Subagent Worktrees:** Claude Code writes subagent changes to separate paths under `.claude/worktrees/agent-<id>`. If a rate limit hits before merging, new files and unstaged diffs stay trapped on disk.
+- **Context Bloat:** Dumping a raw 100k-token transcript into a new session burns your remaining context budget before you write a single line of code.
 
-`pi-tagteam` scans those on-disk session stores, collects uncommitted changes across your main branch and subagent worktrees, and passes a structured brief to Pi ([pi.dev](https://pi.dev)).
+`pi-tagteam` performs actual state salvage. It scans on-disk session stores, maps uncommitted changes across your main branch and subagent worktrees, and passes a high-density, structured execution brief to Pi ([pi.dev](https://pi.dev)).
 
 ```
 [Claude] f4fca288 · 12m ago · "Fix durable audit reports & recovery storage" (main)
@@ -48,13 +49,13 @@ Running tests: 238/238 passing (100% green)
 
 ## 💾 What gets collected
 
-| Item | Details |
-|---|---|
-| **Git worktrees** | Untracked and modified files across root and `.claude/worktrees/*` paths. |
-| **Subagent state** | Status, descriptions, and worktrees from `subagents/*.meta.json` rollouts. |
-| **Checklists** | Pending and completed items from `~/.claude/tasks/`. |
-| **Stopping point** | The original prompt, last assistant thought, and failed tool call. |
-| **Execution brief** | A concise prompt for Pi containing only the state needed to continue. |
+| Item | What pi-tagteam extracts | Why it matters |
+|---|---|---|
+| **Git worktrees** | Untracked files and diffs across root and `.claude/worktrees/*`. | Captures code created in isolated subagent worktrees before they were merged. |
+| **Subagent state** | Status, descriptions, and worktrees from `subagents/*.meta.json`. | Lets Pi continue parallel tasks without repeating work that already finished. |
+| **Checklists** | Pending and completed items from `~/.claude/tasks/`. | Preserves todo lists and checkpoints maintained by the previous agent. |
+| **Stopping point** | The original prompt, last assistant thought, and failed tool call. | Pi knows exactly where the prior run stopped and what was left in progress. |
+| **Execution brief** | A concise, structured brief containing only the active state delta. | Avoids dumping 100k-token raw JSON logs that consume your new context window. |
 
 ---
 
@@ -105,19 +106,19 @@ To pick the most recent session without prompts:
 
 ---
 
-## 🤖 LLM Tool
+## 🤖 LLM Tool: Autonomous Handoff
 
 Pi also exposes `tagteam_handoff` as a tool for the model.
 
-If you tell Pi:
+If you tell Pi in plain English:
 
 > "I was working on this in Claude Code earlier and hit my rate limit. Pick up where it stopped."
 
-Pi runs the discovery tool, inspects uncommitted worktrees, and continues the task.
+Pi automatically queries the discovery engine, inspects uncommitted worktrees, and resumes the task without requiring slash commands.
 
 ---
 
-## 💡 Startup Notice
+## 💡 Proactive Startup Notice
 
 When you start Pi in a project where Claude Code or Codex stopped within the last two hours, `pi-tagteam` shows a one-line notice:
 
@@ -147,7 +148,7 @@ When you start Pi in a project where Claude Code or Codex stopped within the las
 ## ❓ Frequently Asked Questions
 
 #### Does `pi-tagteam` modify files during discovery?
-No. Discovery and brief generation are read-only. Any edits to your project occur during normal Pi tool execution.
+No. Discovery and brief generation are strictly read-only. Any edits to your project occur during normal Pi tool execution.
 
 #### What happens to isolated subagent worktrees?
 Claude Code stores subagent changes under `.claude/worktrees/agent-<id>`. `pi-tagteam` finds those directories, lists modified files in the handoff brief, and gives Pi the exact paths so you can review and merge them.
