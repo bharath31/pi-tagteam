@@ -1,6 +1,6 @@
 {
   "name": "pi-tagteam",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Tag Pi in when Claude Code or Codex hits rate limits, context windows, or crashes. Seamlessly transfer context, uncommitted git work, and subagent tasks.",
   "author": "Bharath",
   "license": "MIT",
@@ -38,7 +38,7 @@
   ],
   "pi": {
     "extensions": [
-      "./dist/index.js"
+      "./src/index.ts"
     ],
     "skills": [
       "./skills"
