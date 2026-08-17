@@ -2,8 +2,6 @@ name: Publish to NPM
 
 on:
   push:
-    branches:
-      - main
     tags:
       - 'v*'
   release:
@@ -37,7 +35,7 @@ jobs:
       - name: Run test suite
         run: npm test
 
-      - name: Publish to NPM if version changed
+      - name: Publish to NPM
         run: |
           PKG_NAME=$(node -p "require('./package.json').name")
           PKG_VERSION=$(node -p "require('./package.json').version")
