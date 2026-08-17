@@ -11,9 +11,9 @@
 
 ---
 
-# pi-tagteam
+# pi-tagteam 🤝
 
-Resume stalled Claude Code and OpenAI Codex sessions in Pi without losing uncommitted git worktrees, subagent tasks, or context.
+> Resume stalled Claude Code and OpenAI Codex sessions in Pi without losing uncommitted git worktrees, subagent tasks, or context.
 
 <p align="center">
   <img src="assets/preview.svg" alt="pi-tagteam preview" width="100%">
@@ -25,13 +25,13 @@ pi install npm:pi-tagteam
 
 ---
 
-## Why this exists
+## ⚡ Why this exists
 
 When Claude Code or Codex hits an hourly rate limit mid-task, execution stops. The prompt history, tool results, and uncommitted diffs remain in on-disk session files.
 
 The main complication is subagent worktrees. Claude Code writes subagent changes to isolated paths under `.claude/worktrees/agent-<id>`. When a rate limit or crash halts the process before merging, those changes sit untracked on disk.
 
-`pi-tagteam` scans those on-disk session stores, collects uncommitted changes across your main branch and subagent worktrees, and passes a structured brief to Pi (`pi.dev`).
+`pi-tagteam` scans those on-disk session stores, collects uncommitted changes across your main branch and subagent worktrees, and passes a structured brief to Pi ([pi.dev](https://pi.dev)).
 
 ```
 [Claude] f4fca288 · 12m ago · "Fix durable audit reports & recovery storage" (main)
@@ -46,7 +46,7 @@ Running tests: 238/238 passing (100% green)
 
 ---
 
-## What gets collected
+## 💾 What gets collected
 
 | Item | Details |
 |---|---|
@@ -58,19 +58,19 @@ Running tests: 238/238 passing (100% green)
 
 ---
 
-## Installation
+## 📦 Installation
 
 ```bash
-# Global install
+# Global install (recommended)
 pi install npm:pi-tagteam
 
-# Try without installing
+# Try once without installing
 pi -e npm:pi-tagteam
 ```
 
 ---
 
-## Usage
+## 🎮 Usage
 
 Run `/tagteam` in any project where an agent stopped:
 
@@ -88,7 +88,7 @@ To pick the most recent session without prompts:
 
 ---
 
-## Commands
+## 🛠️ Command Reference
 
 | Command | Action |
 |---|---|
@@ -105,7 +105,7 @@ To pick the most recent session without prompts:
 
 ---
 
-## LLM Tool
+## 🤖 LLM Tool
 
 Pi also exposes `tagteam_handoff` as a tool for the model.
 
@@ -117,17 +117,17 @@ Pi runs the discovery tool, inspects uncommitted worktrees, and continues the ta
 
 ---
 
-## Startup Notice
+## 💡 Startup Notice
 
 When you start Pi in a project where Claude Code or Codex stopped within the last two hours, `pi-tagteam` shows a one-line notice:
 
 ```
-Recent Claude Code session detected (15m ago: "Fix durable reports in PR #45"). Run /tagteam to take over.
+💡 Recent Claude Code session detected (15m ago: "Fix durable reports in PR #45"). Run /tagteam to take over.
 ```
 
 ---
 
-## Supported session formats
+## 🔍 Supported Data Sources
 
 ### Claude Code (`~/.claude/`)
 - **Transcripts:** `~/.claude/projects/<encoded-cwd>/<session-id>.jsonl`
@@ -144,7 +144,7 @@ Recent Claude Code session detected (15m ago: "Fix durable reports in PR #45"). 
 
 ---
 
-## FAQ
+## ❓ Frequently Asked Questions
 
 #### Does `pi-tagteam` modify files during discovery?
 No. Discovery and brief generation are read-only. Any edits to your project occur during normal Pi tool execution.
@@ -157,7 +157,7 @@ Yes. Select "Edit Handoff Prompt" in `/tagteam` to open Pi's editor and modify t
 
 ---
 
-## Development
+## 💻 Development & Testing
 
 ```bash
 # Clone repository
@@ -168,7 +168,7 @@ cd pi-tagteam
 npm install
 npm run build
 
-# Run tests
+# Run test suite (19 test cases)
 npm test
 
 # Run extension directly in Pi
@@ -177,6 +177,6 @@ pi -e ./dist/index.js
 
 ---
 
-## License
+## 📄 License
 
 [MIT](LICENSE) © Bharath
