@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/banner.svg" alt="pi-tagteam banner" width="100%">
+  <img src="https://raw.githubusercontent.com/bharath31/pi-tagteam/main/assets/banner.svg" alt="pi-tagteam banner" width="100%">
 </p>
 
 <p align="center">
@@ -16,7 +16,7 @@
 > State-aware session handoff from Claude Code and OpenAI Codex to Pi. Recovers uncommitted git worktrees, in-flight subagents, and checklist state without context bloat.
 
 <p align="center">
-  <img src="assets/preview.svg" alt="pi-tagteam preview" width="100%">
+  <img src="https://raw.githubusercontent.com/bharath31/pi-tagteam/main/assets/preview.svg" alt="pi-tagteam preview" width="100%">
 </p>
 
 ```bash
