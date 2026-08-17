@@ -35,7 +35,7 @@ Don't start over from scratch or manually copy-paste terminal history. **`pi-tag
 pi install npm:pi-tagteam
 
 # Or install from GitHub
-pi install git:github.com/your-username/pi-tagteam
+pi install git:github.com/bharath31/pi-tagteam
 ```
 
 ### Try it without installing:
@@ -47,7 +47,7 @@ pi -e npm:pi-tagteam
 ### Local development:
 
 ```bash
-git clone https://github.com/your-username/pi-tagteam.git
+git clone https://github.com/bharath31/pi-tagteam.git
 cd pi-tagteam
 npm install
 npm run build
