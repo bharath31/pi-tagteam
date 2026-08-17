@@ -1,7 +1,24 @@
+<p align="center">
+  <img src="assets/banner.svg" alt="pi-tagteam banner" width="100%">
+</p>
+
+<p align="center">
+  <a href="https://www.npmjs.com/package/pi-tagteam"><img src="https://img.shields.io/npm/v/pi-tagteam.svg?color=f59e0b" alt="npm version"></a>
+  <a href="https://github.com/bharath31/pi-tagteam/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License"></a>
+  <a href="https://pi.dev/packages"><img src="https://img.shields.io/badge/pi--package-ready-38bdf8.svg" alt="Pi Package"></a>
+  <a href="https://github.com/bharath31/pi-tagteam/actions/workflows/ci.yml"><img src="https://github.com/bharath31/pi-tagteam/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+</p>
+
+---
+
 # pi-tagteam 🤝
 
 > **Tag Pi in when Claude Code or OpenAI Codex hits usage limits, context exhaustion, or crashes.**  
 > Seamlessly salvage uncommitted git work, in-flight subagents, structured task lists, and session transcripts directly into Pi.
+
+<p align="center">
+  <img src="assets/preview.svg" alt="pi-tagteam dual chamber relay preview" width="100%">
+</p>
 
 ---
 

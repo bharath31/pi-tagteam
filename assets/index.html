@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>pi-tagteam 🤝 The Relay Handoff Extension for Pi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,600;0,700;0,800;1,400&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #070a11;
+      --card: #0e1422;
+      --card-border: #1e293b;
+      --claude: #e06c4b;
+      --codex: #10a37f;
+      --pi: #f59e0b;
+      --cyan: #38bdf8;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --danger: #ef4444;
+      --success: #10b981;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'JetBrains Mono', monospace;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+      overflow-x: hidden;
+    }
+
+    /* Grid backdrop */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: 
+        linear-gradient(to right, rgba(30, 41, 59, 0.25) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(30, 41, 59, 0.25) 1px, transparent 1px);
+      background-size: 32px 32px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      max-width: 1200px;
+      width: 100%;
+      position: relative;
+      z-index: 1;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 36px;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .logo-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #1e293b;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--cyan);
+      margin-bottom: 12px;
+      border: 1px solid #334155;
+    }
+
+    h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 44px;
+      font-weight: 700;
+      letter-spacing: -1px;
+      line-height: 1.1;
+      margin-bottom: 12px;
+    }
+
+    .tagline {
+      color: var(--text-muted);
+      font-size: 16px;
+      max-width: 600px;
+      line-height: 1.5;
+    }
+
+    .install-box {
+      background: #0f172a;
+      border: 1px solid #334155;
+      padding: 12px 18px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 13px;
+    }
+
+    .install-box code { color: var(--cyan); font-weight: 600; }
+    .btn-copy {
+      background: #1e293b;
+      border: none;
+      color: #cbd5e1;
+      padding: 4px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .btn-copy:hover { background: #334155; color: #fff; }
+
+    /* Controls Bar */
+    .controls {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .btn-agent {
+      background: #151d2f;
+      border: 1px solid #334155;
+      color: var(--text-muted);
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .btn-agent.active {
+      background: #1e293b;
+      color: var(--text);
+      border-color: var(--cyan);
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.2);
+    }
+
+    .btn-action {
+      margin-left: auto;
+      background: var(--pi);
+      color: #000;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+    .btn-action:hover {
+      background: #fbbf24;
+      transform: translateY(-1px);
+      box-shadow: 0 0 16px rgba(245, 158, 11, 0.4);
+    }
+
+    /* Simulation Deck */
+    .deck {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 20px;
+      margin-bottom: 40px;
+      align-items: stretch;
+    }
+
+    @media (max-width: 900px) {
+      .deck { grid-template-columns: 1fr; }
+      .relay-bridge { transform: rotate(90deg); margin: 20px auto; }
+    }
+
+    .terminal {
+      background: var(--card);
+      border-radius: 12px;
+      border: 1.5px solid var(--card-border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-height: 480px;
+      transition: all 0.3s;
+    }
+
+    .terminal.stalled { border-color: rgba(239, 68, 68, 0.5); }
+    .terminal.active { border-color: rgba(245, 158, 11, 0.6); box-shadow: 0 0 24px rgba(245, 158, 11, 0.1); }
+
+    .term-bar {
+      background: #131b2e;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .dot-red { background: #ef4444; }
+    .dot-yellow { background: #f59e0b; }
+    .dot-green { background: #10b981; }
+
+    .term-title { font-size: 12px; font-weight: 600; color: var(--text-muted); margin-left: 6px; }
+    .term-badge {
+      margin-left: auto;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+    .badge-limit { background: #7f1d1d; color: #fca5a5; }
+    .badge-pi { background: #78350f; color: #fde68a; }
+
+    .term-body {
+      padding: 20px;
+      font-size: 12px;
+      line-height: 1.6;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .sec-label { font-size: 10px; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
+    
+    .card-block {
+      background: #090d16;
+      border: 1px solid #1e293b;
+      padding: 12px;
+      border-radius: 6px;
+    }
+
+    .error-card {
+      background: #3b0707;
+      border: 1px solid #991b1b;
+      padding: 12px;
+      border-radius: 6px;
+      color: #fca5a5;
+    }
+
+    .relay-bridge {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      padding: 10px 0;
+    }
+
+    .baton-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: #0f172a;
+      border: 2px solid var(--cyan);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.4);
+      animation: pulse 2s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 16px rgba(56, 189, 248, 0.4); }
+      50% { transform: scale(1.08); box-shadow: 0 0 24px rgba(56, 189, 248, 0.8); }
+    }
+
+    .transfer-pill {
+      background: rgba(3, 105, 161, 0.4);
+      border: 1px solid #0284c7;
+      color: #bae6fd;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 12px;
+      white-space: nowrap;
+    }
+
+    /* Footer Feature Grid */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .feature-card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      padding: 18px;
+      border-radius: 8px;
+    }
+
+    .feature-card h3 {
+      font-size: 14px;
+      margin-bottom: 6px;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .feature-card p {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <div>
+        <div class="logo-badge">PI-PACKAGE 🤝 v0.1.0</div>
+        <h1>pi-tagteam</h1>
+        <p class="tagline">Pass the baton to Pi when Claude Code or OpenAI Codex hits rate limits or session caps. Zero lost worktrees. Zero context waste.</p>
+      </div>
+
+      <div class="install-box">
+        <span>$</span>
+        <code>pi install npm:pi-tagteam</code>
+        <button class="btn-copy" onclick="navigator.clipboard.writeText('pi install npm:pi-tagteam'); this.innerText='COPIED!'">COPY</button>
+      </div>
+    </header>
+
+    <!-- Controls -->
+    <div class="controls">
+      <button class="btn-agent active" id="btn-claude" onclick="setAgent('claude')">
+        <span style="color:var(--claude)">●</span> Claude Code Mode
+      </button>
+      <button class="btn-agent" id="btn-codex" onclick="setAgent('codex')">
+        <span style="color:var(--codex)">●</span> OpenAI Codex Mode
+      </button>
+
+      <button class="btn-action" onclick="simulateHandoff()">
+        ⚡ Simulate Tag-Team Handoff
+      </button>
+    </div>
+
+    <!-- Simulation Deck -->
+    <div class="deck">
+      <!-- Left Chamber: Previous Agent -->
+      <div class="terminal stalled" id="left-term">
+        <div class="term-bar">
+          <div class="dot dot-red"></div>
+          <div class="dot dot-yellow"></div>
+          <div class="dot dot-green"></div>
+          <span class="term-title" id="source-title">claude-code — session: f4fca288</span>
+          <span class="term-badge badge-limit">⚠️ LIMIT HIT</span>
+        </div>
+
+        <div class="term-body">
+          <div>
+            <div class="sec-label">Original Goal</div>
+            <div class="card-block" id="source-goal" style="font-weight:600; color:#e2e8f0; margin-top:4px;">
+              "Fix durable audit reports & recovery storage in PR #45"
+            </div>
+          </div>
+
+          <div>
+            <div class="sec-label">In-Flight Subagents (2 Stalled)</div>
+            <div style="display:flex; flex-direction:column; gap:6px; margin-top:4px;">
+              <div class="card-block" style="display:flex; justify-content:space-between; border-color:#581c87; background:#181329;">
+                <span style="color:#c084fc">🤖 agent-a5167</span>
+                <span style="color:var(--danger); font-size:11px; font-weight:700;">[PAUSED]</span>
+              </div>
+              <div class="card-block" style="display:flex; justify-content:space-between; border-color:#581c87; background:#181329;">
+                <span style="color:#c084fc">🤖 agent-afd3e</span>
+                <span style="color:var(--danger); font-size:11px; font-weight:700;">[PAUSED]</span>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="sec-label">Uncommitted Worktree Changes</div>
+            <div class="card-block" style="margin-top:4px; font-size:11px;">
+              <div style="color:var(--pi)">📁 .claude/worktrees/agent-afd3e361dfa64</div>
+              <div style="color:var(--text-muted)">M src/storage/postgres.ts (+322/-88)</div>
+              <div style="color:var(--success)">+ migrations/0009_recovery_events.sql</div>
+            </div>
+          </div>
+
+          <div class="error-card" id="source-error">
+            <div style="font-weight:700;">⚠️ Session limit reached</div>
+            <div style="font-size:11px; opacity:0.9;">Usage cap reached. Resets at 1:40 PM. Process halted.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Center Relay Bridge -->
+      <div class="relay-bridge">
+        <div class="transfer-pill">11 DIRTY FILES</div>
+        <div class="baton-icon">🤝</div>
+        <div class="transfer-pill">2 SUBAGENTS</div>
+      </div>
+
+      <!-- Right Chamber: Pi Tagged In -->
+      <div class="terminal active" id="right-term">
+        <div class="term-bar">
+          <div class="dot dot-red"></div>
+          <div class="dot dot-yellow"></div>
+          <div class="dot dot-green"></div>
+          <span class="term-title" style="color:var(--pi);">pi — active execution turn</span>
+          <span class="term-badge badge-pi">⚡ TAGGED IN: PI</span>
+        </div>
+
+        <div class="term-body">
+          <div>
+            <div class="sec-label">Handoff Ingest Command</div>
+            <div class="card-block" style="color:var(--cyan); font-weight:700; margin-top:4px;">
+              /tagteam latest
+            </div>
+          </div>
+
+          <div>
+            <div class="sec-label" style="color:var(--success)">✓ Handoff Brief Ingested</div>
+            <div class="card-block" style="margin-top:4px; font-size:11px; line-height:1.7;">
+              <div style="color:var(--pi); font-weight:700;">## 🤝 Tag-Team Handoff Active</div>
+              <div style="color:var(--text-muted)">✓ Ingested original goal &amp; stopping point</div>
+              <div style="color:var(--text-muted)">✓ Salvaged worktree: agent-afd3e361dfa64</div>
+              <div style="color:var(--text-muted)">✓ Reconnected 2 subagent checkpoints</div>
+              <div style="color:var(--text-muted)">✓ Ingested 11 modified files with zero token bloat</div>
+            </div>
+          </div>
+
+          <div>
+            <div class="sec-label">Current Pi Agent Turn</div>
+            <div class="card-block" style="background:#064e3b33; border-color:#059669; margin-top:4px;">
+              <div style="color:#6ee7b7; font-weight:600;">pi: "Applying migration and finishing recovery routes..."</div>
+              <div style="color:#a7f3d0; font-size:11px; margin-top:4px;">Running test suite: 238/238 passing (100% green)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feature Grid -->
+    <div class="features">
+      <div class="feature-card">
+        <h3>🎯 Instant Recovery</h3>
+        <p>Type <code>/tagteam</code> to open an interactive picker and pass the baton in one keystroke.</p>
+      </div>
+      <div class="feature-card">
+        <h3>💾 Worktree Salvage</h3>
+        <p>Detects and captures uncommitted changes locked in isolated subagent worktrees.</p>
+      </div>
+      <div class="feature-card">
+        <h3>🤖 Subagent Continuity</h3>
+        <p>Parses subagent rollouts and task items so Pi continues in-flight parallel work.</p>
+      </div>
+      <div class="feature-card">
+        <h3>🧠 Autonomous LLM Tool</h3>
+        <p>Pi can autonomously call <code>tagteam_handoff</code> when asked to resume previous work.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function setAgent(type) {
+      document.getElementById('btn-claude').classList.toggle('active', type === 'claude');
+      document.getElementById('btn-codex').classList.toggle('active', type === 'codex');
+
+      const title = document.getElementById('source-title');
+      const goal = document.getElementById('source-goal');
+      const error = document.getElementById('source-error');
+
+      if (type === 'codex') {
+        title.innerText = 'codex — rollout: 019f285f';
+        goal.innerText = '"Install Auth0 plugin & configure RBAC tokens"';
+        error.innerHTML = '<div style="font-weight:700;">⚠️ Rate limit reached (Codex)</div><div style="font-size:11px; opacity:0.9;">Quota reached: resets in 2 hours. Execution paused.</div>';
+      } else {
+        title.innerText = 'claude-code — session: f4fca288';
+        goal.innerText = '"Fix durable audit reports & recovery storage in PR #45"';
+        error.innerHTML = '<div style="font-weight:700;">⚠️ Session limit reached</div><div style="font-size:11px; opacity:0.9;">Usage cap reached. Resets at 1:40 PM. Process halted.</div>';
+      }
+    }
+
+    function simulateHandoff() {
+      const rightTerm = document.getElementById('right-term');
+      rightTerm.style.transform = 'scale(0.98)';
+      setTimeout(() => {
+        rightTerm.style.transform = 'scale(1)';
+        alert('🤝 Handoff Simulated! Pi has ingested all context and uncommitted files seamlessly.');
+      }, 200);
+    }
+  </script>
+</body>
+</html>

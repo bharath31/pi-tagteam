@@ -33,7 +33,8 @@
   "pi": {
     "extensions": [
       "./dist/index.js"
-    ]
+    ],
+    "image": "https://raw.githubusercontent.com/bharath31/pi-tagteam/main/assets/preview.svg"
   },
   "scripts": {
     "build": "tsc",
